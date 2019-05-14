@@ -44,7 +44,7 @@ class ExtraTreesAgent():
         self.buffer[4].append(done)
 
     def train(self):
-        csvfile, writer = setup_writer('d_Q', 'extra_trees')
+        csvfile, writer = setup_writer('d_Q', 'results')
         X = np.hstack((self.buffer[0], self.buffer[1]))
         y = self.buffer[2]
         print("Training prec...")
@@ -52,7 +52,7 @@ class ExtraTreesAgent():
 
         self.model
         dQ = []
-        dump(self.model, 'extra_trees/models/Q0.pkl')
+        dump(self.model, 'models/Q0.pkl')
         for iteration in range(60):
             y = []
             
@@ -70,13 +70,13 @@ class ExtraTreesAgent():
             
             print("Training {}...".format(iteration))
             self.model.fit(X, y)
-            dump(self.model, 'extra_trees/models/Q{}.pkl'.format(iteration+1))
+            dump(self.model, 'models/Q{}.pkl'.format(iteration+1))
 
-            old_model = load('extra_trees/models/Q{}.pkl'.format(iteration))
+            old_model = load('models/Q{}.pkl'.format(iteration))
             d = mean_squared_error(self.model.predict(X), old_model.predict(X))
             print(d)
             writer.writerow([iteration, d])
-            self.test(iteration)
+            # self.test(iteration)
 
     def get_action(self, state):
         if self.model is None:
@@ -90,8 +90,8 @@ class ExtraTreesAgent():
     
     def test(self, iteration):
         fileid = "%s-%d" % ('extra_trees', iteration)
-        csvfile, writer = setup_writer(fileid, 'extra_trees')
-        for e in range(10):
+        csvfile, writer = setup_writer(fileid, 'results')
+        for e in range(1):
             done = False
             score = 0
             state = self.env.reset()
@@ -141,7 +141,7 @@ if __name__ == "__main__":
     scores, episodes = [], []
     print("Exploring")
     
-    for e in range(100):
+    for e in range(1000):
         done = False
         state = env.reset()
         while not done:
@@ -157,6 +157,3 @@ if __name__ == "__main__":
     agent.train()
     print("Testing")
     agent.test(iteration=60)
-
-    csvfile.close()
-
